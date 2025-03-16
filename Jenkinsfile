@@ -29,7 +29,7 @@
 //     }
 // }
 
-pipeline{
+pipeline {
     agent any
 
     stages {
@@ -41,18 +41,14 @@ pipeline{
         }
 
         stage('Build and Push Docker') {
-            agent {
-                docker {
-                    image 'docker:latest'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
-                echo 'Building Docker image'
-                sh 'docker --version'
-                withDockerRegistry(credentialsId: 'docker-hub', url: 'https://index.docker.io/v1/') {
-                    sh 'docker build -t yourdockerhub/testjenkins:v3 .'
-                    sh 'docker push yourdockerhub/testjenkins:v3'
+                sh 'docker build -t yourdockerhub/testjenkins:v3 .'
+                
+                withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh '''
+                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                        docker push $DOCKER_USERNAME/testjenkins:v3
+                    '''
                 }
             }
         }
