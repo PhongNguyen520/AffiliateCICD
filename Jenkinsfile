@@ -10,14 +10,14 @@ pipeline{
             }
         }
 
-        // stage('PushDocker') {
-        //     steps {
-        //         // Use the default Docker Hub registry URL (optional)
-        //         withDockerRegistry(credentialsId: 'docker-hub', url: 'https://index.docker.io/v1/') {
-        //             sh 'docker build -t nguyenphong203/aspnetcoretest:v3 -f SwaggerTest/Dockerfile .'
-        //             sh 'docker push nguyenphong203/aspnetcoretest:v3'
-        //         }
-        //     }
-        // }
+        stage('PushDocker') {
+            steps {
+                withDockerRegistry(credentialsId: 'docker-hub', url: 'https://index.docker.io/v1/') {
+                    sh 'docker build -t testjenkins .'
+                    sh 'docker push testjenkins:v3'
+                }
+            }
+        }
     }
 }
+
