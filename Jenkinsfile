@@ -44,9 +44,9 @@ pipeline {
         stage('PushDocker') {
             steps {
                 withDockerRegistry(credentialsId: 'docker-hub', url: 'https://index.docker.io/v1/') {
-                    sh 'sudo docker build -t testjenkins .'
-                    sh 'sudo docker tag testjenkins testjenkins:v3'
-                    sh 'sudo docker push testjenkins:v3'
+                    sh 'sudo docker build -t phongnguyen203/testjenkins .'
+                    sh 'sudo docker tag phongnguyen203/testjenkins phongnguyen203/testjenkins:v3'
+                    sh 'sudo docker push phongnguyen203/testjenkins:v3'
                 }
             }
         }
