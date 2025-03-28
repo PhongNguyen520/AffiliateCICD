@@ -5,6 +5,7 @@ pipeline {
         DOTNET_CLI_HOME = "/tmp/DOTNET_CLI_HOME"
         DOCKER_IMAGE = "nguyenphong203/testjenkins"
         DOCKER_TAG = "${env.BUILD_NUMBER}"
+        SOLUTION_FILE = "SWD392-AffiliLinker.sln"
     }
     
     stages {
@@ -20,28 +21,32 @@ pipeline {
         stage('Restore Dependencies') {
             steps {
                 echo 'Restoring .NET dependencies'
-                sh 'dotnet restore'
+                // Specify the solution file explicitly
+                sh "dotnet restore ${SOLUTION_FILE}"
             }
         }
         
         stage('Build') {
             steps {
                 echo 'Building ASP.NET Web API project'
-                sh 'dotnet build --configuration Release --no-restore'
+                sh "dotnet build ${SOLUTION_FILE} --configuration Release --no-restore"
             }
         }
         
         stage('Test') {
             steps {
                 echo 'Running tests'
-                sh 'dotnet test --no-restore --verbosity normal'
+                // You can specify test projects explicitly if needed
+                sh "dotnet test ${SOLUTION_FILE} --no-restore --verbosity normal"
+                // If tests fail, the pipeline will stop here
             }
         }
         
         stage('Publish') {
             steps {
                 echo 'Publishing .NET application'
-                sh 'dotnet publish --configuration Release --no-build --output ./publish'
+                // Specify the API project for publishing
+                sh 'dotnet publish SWD392-AffiliLinker.API/SWD392-AffiliLinker.API.csproj --configuration Release --no-build --output ./publish'
             }
         }
         
@@ -66,8 +71,8 @@ pipeline {
         stage('Clean Up') {
             steps {
                 echo 'Cleaning up local Docker images'
-                sh "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                sh "docker rmi ${DOCKER_IMAGE}:latest"
+                sh "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true"
+                sh "docker rmi ${DOCKER_IMAGE}:latest || true"
                 cleanWs()
             }
         }
@@ -76,9 +81,11 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
+            // You can add notifications here (email, Slack, etc.)
         }
         failure {
             echo 'Pipeline failed!'
+            // You can add failure notifications here
         }
         always {
             echo 'Cleaning up resources'
@@ -86,13 +93,9 @@ pipeline {
     }
 }
 
-console.log("Jenkinsfile for ASP.NET Web API CI/CD Pipeline");
-console.log("This pipeline includes:");
-console.log("1. Code checkout from GitHub");
-console.log("2. Restoring .NET dependencies");
-console.log("3. Building the ASP.NET application");
-console.log("4. Running tests");
-console.log("5. Publishing the application");
-console.log("6. Building Docker image with versioned tags");
-console.log("7. Pushing to Docker Hub");
-console.log("8. Cleaning up resources");
+console.log("Fixed Jenkinsfile for ASP.NET Web API CI/CD Pipeline");
+console.log("Key fixes:");
+console.log("1. Added SOLUTION_FILE environment variable to specify which solution file to use");
+console.log("2. Modified dotnet commands to explicitly reference the solution file");
+console.log("3. Added specific path for the publish command targeting the API project");
+console.log("4. Added error handling for docker rmi commands with '|| true'");
